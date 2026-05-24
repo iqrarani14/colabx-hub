@@ -79,7 +79,7 @@ const Dashboard = () => {
     // GitHub API call
     fetch('https://api.github.com/repos/iqrarani14/colabx-hub', {
       headers: {
-        Authorization: `token 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`
+        Authorization: `token ${import.meta.env.VITE_GITHUB_TOKEN}`
       }
     })
       .then(res => res.json())

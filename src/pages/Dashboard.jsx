@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [activity, setActivity] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
+  const [githubData, setGithubData] = useState(null);
 
   useEffect(() => {
     // Admin ko admin panel pe redirect karo
@@ -72,6 +73,18 @@ const Dashboard = () => {
       notifs.push({ text: 'No new notifications', time: 'Now', icon: '🔔', color: 'var(--text-muted)', read: true });
     }
     setNotifications(notifs.slice(0, 5));
+
+    
+
+    // GitHub API call
+    fetch('https://api.github.com/repos/iqrarani14/colabx-hub', {
+      headers: {
+        Authorization: `token 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`
+      }
+    })
+      .then(res => res.json())
+      .then(data => setGithubData(data))
+      .catch(err => console.log(err));
   }, []);
 
   const completedTasks = tasks.filter(t => t.status === 'Done').length;
@@ -518,6 +531,82 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      {/* GitHub Repository Card */}
+      {githubData && (
+        <div className="card" style={{ marginTop: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '22px' }}>🐙</span>
+              GitHub Repository
+            </h3>
+            <a href={githubData.html_url} target="_blank" rel="noreferrer" style={{
+              fontSize: '13px', color: 'var(--green)', fontWeight: 600, textDecoration: 'none'
+            }}>View on GitHub →</a>
+          </div>
+
+          {/* Repo Info */}
+          <div style={{
+            background: 'var(--bg-card)', border: '1px solid var(--border)',
+            borderRadius: '12px', padding: '20px', marginBottom: '20px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+              <span style={{ fontSize: '20px' }}>📦</span>
+              <div>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '16px', fontWeight: 700 }}>
+                  {githubData.full_name}
+                </div>
+                <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                  {githubData.description}
+                </div>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px' }}>
+              {[
+                { label: 'Stars', val: githubData.stargazers_count, icon: '⭐', color: 'var(--amber)' },
+                { label: 'Forks', val: githubData.forks_count, icon: '🍴', color: 'var(--blue)' },
+                { label: 'Watchers', val: githubData.watchers_count, icon: '👁️', color: 'var(--green)' },
+                { label: 'Open Issues', val: githubData.open_issues_count, icon: '🔴', color: 'var(--red)' },
+              ].map(s => (
+                <div key={s.label} style={{
+                  background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                  borderRadius: '10px', padding: '14px', textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '20px', marginBottom: '6px' }}>{s.icon}</div>
+                  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.4rem', fontWeight: 800, color: s.color }}>
+                    {s.val}
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '2px' }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Repo Details */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            {[
+              { label: 'Default Branch', val: githubData.default_branch, icon: '🌿' },
+              { label: 'Language', val: githubData.language || 'JavaScript', icon: '💻' },
+              { label: 'Visibility', val: githubData.private ? 'Private' : 'Public', icon: '🌐' },
+              { label: 'Last Updated', val: new Date(githubData.updated_at).toLocaleDateString(), icon: '📅' },
+            ].map(d => (
+              <div key={d.label} style={{
+                background: 'var(--bg-card)', border: '1px solid var(--border)',
+                borderRadius: '10px', padding: '14px',
+                display: 'flex', alignItems: 'center', gap: '12px'
+              }}>
+                <span style={{ fontSize: '20px' }}>{d.icon}</span>
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginBottom: '2px' }}>{d.label}</div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)' }}>{d.val}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
